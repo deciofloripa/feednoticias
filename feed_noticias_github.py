@@ -3,10 +3,16 @@ import json
 import subprocess
 import requests
 import feedparser
+#import time
+#from funcoes         import HoraMinuto
 from deep_translator import MyMemoryTranslator
-from datetime        import datetime
+from datetime import datetime
+
 
 # CONFIGURAÇÕES
+ALTO_IMP  = "🔥 ALTO IMPACTO"
+MEDIO_IMP = "⚠️ MÉDIO IMPACTO"
+BAIXO_IMP = "💤 BAIXO IMPACTO"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 FEEDS = [
@@ -36,10 +42,6 @@ def carregar_vistos():
 def salvar_vistos(vistos):
     with open("vistos.json", "w") as f:
         json.dump(list(vistos), f)
-
-def salvar_vistos(vistos):
-    with open("vistos.json", "w") as f:
-        json.dump(list(vistos), f)
     try:
         subprocess.run(["git", "config", "--global", "user.email", "bot@github.com"])
         subprocess.run(["git", "config", "--global", "user.name", "bot"])
@@ -47,7 +49,6 @@ def salvar_vistos(vistos):
         subprocess.run(["git", "commit", "-m", "update vistos"], check=False)
         subprocess.run(["git", "push"], check=False)
         print("💾 Histórico salvo no GitHub")
-
     except Exception as e:
         print("Erro ao salvar histórico:", e)        
 
@@ -90,6 +91,18 @@ def resumir_trader(titulo):
         return "Dólar / Treasuries → impacto direto no WDO"
     return "Notícia macro relevante"
 
+def classificar_impacto(titulo):
+    t = titulo.lower()
+    alto = ["cpi", "inflation", "interest rate", "fed", "fomc",
+            "pce", "payroll", "jobs report", "nonfarm"]
+    medio = ["gdp", "oil", "treasury", "bond", "yields"]
+    if any(k in t for k in alto):
+        return ALTO_IMP
+    elif any(k in t for k in medio):
+        return MEDIO_IMP
+    else:
+        return BAIXO_IMP
+
 def buscar(vistos):
     noticias = []
     for url in FEEDS:
@@ -104,8 +117,7 @@ def buscar(vistos):
                 if relevante(titulo):
                     noticias.append({
                         "titulo": titulo,
-                        "link": link
-                    })
+                        "link": link})
         except:
             print("Erro feed:", url)
     return noticias
@@ -120,16 +132,33 @@ def run_once():
             titulo_en = n['titulo']
             titulo_pt = traduzir(titulo_en)
             resumo = resumir_trader(titulo_en)
+            impacto = classificar_impacto(titulo_en)
             msg = (
-                f"🕒 {datetime.now().strftime('%H:%M')}\n"
-                f"📰 {titulo_pt}\n"
-                f"📊 {resumo}\n"
-                f"{n['link']}"
+                    f"🕒 {datetime.now().strftime('%H:%M')}\n"
+                    f"{impacto}\n"
+                    f"📰 {titulo_pt}\n"
+                    f"📊 {resumo}\n"
+                    f"{n['link']}"
             )
             print(msg + "\n")
-            enviar_telegram(msg)
+            if impacto != BAIXO_IMP:
+                enviar_telegram(msg)
     salvar_vistos(vistos)
 
-# START
+#def dentro_do_horario():
+#    agora = datetime.now()
+#    if agora.weekday() >= 5:
+#        return False
+#    return (500 <= HoraMinuto()[0] <= 990) # 8h20~16h30
+
+#def loop_controlado():
+#    print("🚀 Rodando em modo contínuo controlado...\n")
+#    while True:
+#        if dentro_do_horario():
+#            run_once()
+#        else:
+#            print("Fora do horário...")
+#        time.sleep(120)  # 2 minutos
+
 if __name__ == "__main__":
-    run_once()
+    run_once() #loop_controlado()
