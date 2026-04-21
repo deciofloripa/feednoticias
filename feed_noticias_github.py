@@ -149,20 +149,20 @@ def run_once():
                 enviar_telegram(msg)
     salvar_vistos(vistos)
 
-#def dentro_do_horario():
-#    agora = agora_brasil()
-#    if agora.weekday() >= 5:
-#        return False
-#    return (500 <= HoraMinuto()[0] <= 990) # 8h20~16h30
+def dentro_do_horario():
+    agora = agora_brasil()
+    if agora.weekday() >= 5:
+        return False
+    return (500 <= HoraMinuto()[0] <= 990) # 8h20~16h30
 
-#def loop_controlado():
-#    print("🚀 Rodando em modo contínuo controlado...\n")
-#    while True:
-#        if dentro_do_horario():
-#            run_once()
-#        else:
-#            print("Fora do horário...")
-#        time.sleep(120)  # 2 minutos
+def loop_controlado():
+    print("🚀 Rodando em modo contínuo controlado...\n")
+    while True:
+        if dentro_do_horario():
+            run_once()
+        else:
+            print("Fora do horário...")
+        time.sleep(120)  # 2 minutos
 
 if __name__ == "__main__":
-    run_once() #loop_controlado()
+    loop_controlado()
