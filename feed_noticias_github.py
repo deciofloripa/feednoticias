@@ -43,15 +43,7 @@ def carregar_vistos():
 def salvar_vistos(vistos):
     with open("vistos.json", "w") as f:
         json.dump(list(vistos), f)
-    try:
-        subprocess.run(["git", "config", "--global", "user.email", "bot@github.com"])
-        subprocess.run(["git", "config", "--global", "user.name", "bot"])
-        subprocess.run(["git", "add", "vistos.json"])
-        subprocess.run(["git", "commit", "-m", "update vistos"], check=False)
-        subprocess.run(["git", "push"], check=False)
-        print("💾 Histórico salvo no GitHub")
-    except Exception as e:
-        print("Erro ao salvar histórico:", e)        
+    print("💾 Histórico salvo localmente")      
 
 def enviar_telegram(msg):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
