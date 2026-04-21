@@ -1,15 +1,14 @@
-import threading
 import os
 import json
 import subprocess
 import requests
 import feedparser
-#import time
-#from funcoes         import HoraMinuto
-from flask import Flask
+import time
+import threading
 from deep_translator import MyMemoryTranslator
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
+from flask    import Flask
 
 
 # CONFIGURAÇÕES
@@ -32,7 +31,6 @@ KEYWORDS = [
 
 vistos = set()
 translator = MyMemoryTranslator(source='en-US', target='pt-BR')
-
 
 # FUNÇÕES
 def carregar_vistos():
@@ -151,21 +149,6 @@ def run_once():
                 enviar_telegram(msg)
     salvar_vistos(vistos)
 
-def dentro_do_horario():
-    agora = agora_brasil()
-    if agora.weekday() >= 5:
-        return False
-    return (500 <= HoraMinuto()[0] <= 990) # 8h20~16h30
-
-def loop_controlado():
-    print("🚀 Rodando em modo contínuo controlado...\n")
-    while True:
-        if dentro_do_horario():
-            run_once()
-        else:
-            print("Fora do horário...")
-        time.sleep(120)  # 2 minutos
-
 def loop():
     print("🚀 Bot rodando continuamente...\n")
     while True:
@@ -184,4 +167,3 @@ def iniciar_bot():
 if __name__ == "__main__":
     threading.Thread(target=iniciar_bot).start()
     app.run(host="0.0.0.0", port=10000)
-    
