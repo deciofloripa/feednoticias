@@ -166,6 +166,11 @@ def loop_controlado():
             print("Fora do horário...")
         time.sleep(120)  # 2 minutos
 
+def loop():
+    while True:
+        run_once()
+        time.sleep(120)
+
 app = Flask(__name__)
 @app.route("/")
 
