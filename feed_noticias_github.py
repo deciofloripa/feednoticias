@@ -1,22 +1,21 @@
-import os
-import json
-import subprocess
-import requests
-import feedparser
-import time
-import threading
+# Feed de notícias guardado no github e executado 24h pelo Render
+from os import getenv
 from deep_translator import MyMemoryTranslator
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from flask    import Flask
-
+from requests   import post
+from datetime   import datetime
+from zoneinfo   import ZoneInfo
+from feedparser import parse
+from time       import sleep
+from flask      import Flask
+from threading  import Thread
+import json
 
 # CONFIGURAÇÕES
 ALTO_IMP  = "🔥 ALTO IMPACTO"
 MEDIO_IMP = "⚠️ MÉDIO IMPACTO"
 BAIXO_IMP = "💤 BAIXO IMPACTO"
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+TELEGRAM_TOKEN = getenv("TELEGRAM_TOKEN")
+CHAT_ID = getenv("CHAT_ID")
 FEEDS = [
     "https://www.cnbc.com/id/100003114/device/rss/rss.html",
     "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^DJI&region=US&lang=en-US"#,
@@ -49,7 +48,7 @@ def enviar_telegram(msg):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     data = {"chat_id": CHAT_ID, "text": msg}
     try:
-        requests.post(url, data=data, timeout=10)
+        post(url, data=data, timeout=10)
     except:
         print("Erro Telegram")
 
@@ -103,7 +102,7 @@ def buscar(vistos):
     noticias = []
     for url in FEEDS:
         try:
-            feed = feedparser.parse(url)
+            feed = parse(url)
             for e in feed.entries:
                 titulo = e.title.strip()
                 link = e.link.strip()
@@ -145,7 +144,7 @@ def loop():
     print("🚀 Bot rodando continuamente...\n")
     while True:
         run_once()
-        time.sleep(120)  # 2 minutos
+        sleep(120)  # 2 minutos
 
 app = Flask(__name__)
 @app.route("/")
@@ -157,5 +156,5 @@ def iniciar_bot():
     loop()
 
 if __name__ == "__main__":
-    threading.Thread(target=iniciar_bot).start()
+    Thread(target=iniciar_bot).start()
     app.run(host="0.0.0.0", port=10000)
