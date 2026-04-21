@@ -1,3 +1,4 @@
+import threading
 import os
 import json
 import subprocess
@@ -5,6 +6,7 @@ import requests
 import feedparser
 #import time
 #from funcoes         import HoraMinuto
+from flask import Flask
 from deep_translator import MyMemoryTranslator
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -164,5 +166,16 @@ def loop_controlado():
             print("Fora do horário...")
         time.sleep(120)  # 2 minutos
 
+app = Flask(__name__)
+@app.route("/")
+
+def home():
+    return "Bot rodando!"
+
+def iniciar_bot():
+    loop()
+
 if __name__ == "__main__":
-    loop_controlado()
+    threading.Thread(target=iniciar_bot).start()
+    app.run(host="0.0.0.0", port=10000)
+    
