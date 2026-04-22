@@ -140,10 +140,12 @@ def run_once():
     if len(vistos) > 500:
         vistos = set(list(vistos)[-500:])
     noticias = buscar(vistos)
+    print("Noticias encontradas:", len(noticias))
     if noticias:
         agora = agora_brasil().strftime("%d/%m %H:%M:%S")
         print(f"🔄 Atualizando {agora}")
         for n in noticias:
+            print("DEBUG:", n["titulo"])
             data_noticia = ajustar_data(n.get("data", ""), n.get("fonte", ""))
             if data_noticia < agora_brasil() - timedelta(hours=2):
                 continue
