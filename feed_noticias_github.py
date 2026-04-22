@@ -2,11 +2,11 @@
 from os import getenv
 from deep_translator import MyMemoryTranslator
 from requests   import post
-from datetime   import datetime
-from zoneinfo   import ZoneInfo
-from feedparser import parse
 from time       import sleep
+from datetime   import datetime, timedelta
+from zoneinfo   import ZoneInfo
 from dateutil   import parser #pip install python-dateutil
+from feedparser import parse
 from flask      import Flask
 from threading  import Thread
 import json
@@ -141,11 +141,13 @@ def run_once():
         agora = agora_brasil().strftime("%d/%m %H:%M:%S")
         print(f"🔄 Atualizando {agora}")
         for n in noticias:
+            data_noticia = ajustar_data(n.get("data", ""))
+            if data_noticia < agora_brasil() - timedelta(hours=2):
+                continue
             titulo_en = n['titulo']
             titulo_pt = traduzir(titulo_en)
             resumo = resumir_trader(titulo_en)
             impacto = classificar_impacto(titulo_en)
-            data_noticia = ajustar_data(n.get("data", ""))
             msg = (
                     f"🕒 {data_noticia.strftime('%H:%M')}\n"
                     f"{impacto}\n"
