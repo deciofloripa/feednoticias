@@ -1,6 +1,6 @@
 # Feed de notícias guardado no github e rodando 24h no Render
 from os import getenv
-from deep_translator import MyMemoryTranslator
+from deep_translator import GoogleTranslator #MyMemoryTranslator
 from requests   import post
 from time       import sleep
 from datetime   import datetime, timedelta
@@ -22,7 +22,8 @@ FEEDS = [
     "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^DJI&region=US&lang=en-US"#,
 ]
 
-translator = MyMemoryTranslator(source='en-US', target='pt-BR')
+#translator = MyMemoryTranslator(source='en-US', target='pt-BR') # gostei mais mas, aparentemente, dá mais erro
+translator = GoogleTranslator(source='auto', target='pt')
 
 # FUNÇÕES
 def carregar_vistos():
@@ -48,10 +49,11 @@ def enviar_telegram(msg):
 def traduzir(texto, tentativas=3):
     for i in range(tentativas):
         try:
+            sleep(0.3)
             return translator.translate(texto)
         except:
             sleep(1)
-    return texto
+    return f"(EN) {texto}"
 
 def agora_brasil():
     return datetime.now(ZoneInfo("America/Sao_Paulo"))
@@ -169,7 +171,7 @@ def run_once():
             if data_noticia < agora_brasil() - timedelta(hours=6):
                 continue
             titulo_en = n['titulo']
-            titulo_pt = traduzir(titulo_en)
+            titulo_pt = titulo_en if len(titulo_en) < 5 else traduzir(titulo_en)
             resumo = resumir_trader(titulo_en)
             score_wdo, motivos, breaking = classificar_wdo(titulo_en)
             motivo_txt = " | ".join(motivos) if motivos else "Macro"
