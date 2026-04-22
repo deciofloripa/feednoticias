@@ -6,6 +6,7 @@ from datetime   import datetime
 from zoneinfo   import ZoneInfo
 from feedparser import parse
 from time       import sleep
+from dateutil   import parser #pip install python-dateutil
 from flask      import Flask
 from threading  import Thread
 import json
@@ -51,11 +52,13 @@ def enviar_telegram(msg):
     except:
         print("Erro Telegram")
 
-def traduzir(texto):
-    try:
-        return translator.translate(texto)
-    except:
-        return texto
+def traduzir(texto, tentativas=3):
+    for i in range(tentativas):
+        try:
+            return translator.translate(texto)
+        except:
+            sleep(1)
+    return texto
 
 def relevante(titulo):
     t = titulo.lower()
@@ -64,6 +67,13 @@ def relevante(titulo):
 def agora_brasil():
     return datetime.now(ZoneInfo("America/Sao_Paulo"))
 
+def ajustar_data(pubDate):
+    try:
+        dt = parser.parse(pubDate)
+        return dt.astimezone(ZoneInfo("America/Sao_Paulo"))
+    except:
+        return agora_brasil()
+    
 # 🧠 RESUMO ESTILO TRADER
 def resumir_trader(titulo):
     t = titulo.lower()
@@ -115,7 +125,9 @@ def buscar(vistos):
                 if relevante(titulo):
                     noticias.append({
                         "titulo": titulo,
-                        "link": link})
+                        "link": link,
+                        "data": e.get("published", "")
+                    })
         except:
             print("Erro feed:", url)
     return noticias
@@ -133,8 +145,9 @@ def run_once():
             titulo_pt = traduzir(titulo_en)
             resumo = resumir_trader(titulo_en)
             impacto = classificar_impacto(titulo_en)
+            data_noticia = ajustar_data(n.get("data", ""))
             msg = (
-                    f"🕒 {agora_brasil().strftime('%H:%M')}\n"
+                    f"🕒 {data_noticia.strftime('%H:%M')}\n"
                     f"{impacto}\n"
                     f"📰 {titulo_pt}\n"
                     f"📊 {resumo}\n"
