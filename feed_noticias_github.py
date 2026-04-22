@@ -147,7 +147,7 @@ def run_once():
         for n in noticias:
             print("DEBUG:", n["titulo"])
             data_noticia = ajustar_data(n.get("data", ""), n.get("fonte", ""))
-            if data_noticia < agora_brasil() - timedelta(hours=2):
+            if data_noticia < agora_brasil() - timedelta(hours=6):
                 continue
             titulo_en = n['titulo']
             titulo_pt = traduzir(titulo_en)
