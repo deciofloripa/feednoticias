@@ -60,10 +60,6 @@ def traduzir(texto, tentativas=3):
             sleep(1)
     return texto
 
-def relevante(titulo):
-    t = titulo.lower()
-    return any(k in t for k in KEYWORDS)
-
 def agora_brasil():
     return datetime.now(ZoneInfo("America/Sao_Paulo"))
 
