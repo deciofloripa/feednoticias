@@ -71,11 +71,14 @@ def ajustar_data(pubDate, fonte):
     try:
         dt = parser.parse(pubDate)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+            if "yahoo" in fonte.lower():
+                dt = dt.replace(tzinfo=ZoneInfo("America/New_York"))
+            else:
+                dt = dt.replace(tzinfo=ZoneInfo("UTC"))
         return dt.astimezone(ZoneInfo("America/Sao_Paulo"))
-    except Exception as e:
+    except Exception:
         return agora_brasil()
-    
+        
 # 🧠 RESUMO ESTILO TRADER
 def resumir_trader(titulo):
     t = titulo.lower()
