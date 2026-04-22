@@ -101,7 +101,7 @@ def classificar_impacto(titulo):
     t = titulo.lower()
     alto = ["cpi", "inflation", "interest rate", "fed", "fomc",
             "pce", "payroll", "jobs report", "nonfarm"]
-    medio = ["gdp", "oil", "treasury", "bond", "yields"]
+    medio = ["gdp", "oil", "treasury", "bond", "yield"]
     if any(k in t for k in alto):
         return ALTO_IMP
     elif any(k in t for k in medio):
@@ -123,14 +123,12 @@ def buscar(vistos):
                 if chave in vistos:
                     continue
                 vistos.add(chave)
-
-                if relevante(titulo):
-                    noticias.append({
-                        "titulo": titulo,
-                        "link": link,
-                        "data": e.get("published", ""),
-                        "fonte": url
-                    })
+                noticias.append({
+                    "titulo": titulo,
+                    "link": link,
+                    "data": e.get("published", ""),
+                    "fonte": url
+                })
         except:
             print("Erro feed:", url)
     return noticias
@@ -161,7 +159,7 @@ def classificar_wdo(titulo):
         motivo.append("Petróleo")
     # 🧨 GEOPOLÍTICO (muito importante)
     if any(k in t for k in ["war", "iran", "china", "russia", "conflict", "strait"]):
-        score += 4
+        score += 5
         motivo.append("Geopolítica")
     # 🚨 BREAKING
     breaking = any(k in t for k in ["breaking", "urgent", "alert"])
@@ -170,7 +168,7 @@ def classificar_wdo(titulo):
 def run_once():
     global vistos
     if len(vistos) > 500:
-        vistos = set(list(vistos)[-500:])
+        vistos = set(list(vistos)[-300:])
     noticias = buscar(vistos)
     print("Noticias encontradas:", len(noticias))
     if noticias:
@@ -185,13 +183,14 @@ def run_once():
             titulo_pt = traduzir(titulo_en)
             resumo = resumir_trader(titulo_en)
             score_wdo, motivos, breaking = classificar_wdo(titulo_en)
+            motivo_txt = " | ".join(motivos) if motivos else "Macro"
             if score_wdo >= 4 or breaking: # quanto menor, mais sensível
                 alerta = "🚨 BREAKING NEWS\n" if breaking else ""
                 msg = (
                     f"{alerta}"
                     f"🕒 {data_noticia.strftime('%H:%M')}\n"
                     f"💰 IMPACTO WDO: {score_wdo}\n"
-                    f"📌 {' | '.join(motivos)}\n"
+                    f"📌 {motivo_txt}\n"
                     f"📰 {titulo_pt}\n"
                     f"📊 {resumo}\n"
                     f"{n['link']}"
