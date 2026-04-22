@@ -1,6 +1,6 @@
 # Feed de notícias guardado no github e rodando 24h no Render
 from os import getenv
-from deep_translator import GoogleTranslator #MyMemoryTranslator
+from deep_translator import MyMemoryTranslator, GoogleTranslator
 from requests   import post
 from time       import sleep
 from datetime   import datetime, timedelta
@@ -22,8 +22,8 @@ FEEDS = [
     "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^DJI&region=US&lang=en-US"#,
 ]
 
-#translator = MyMemoryTranslator(source='en-US', target='pt-BR') # gostei mais mas, aparentemente, dá mais erro
-translator = GoogleTranslator(source='auto', target='pt')
+translator_memory = MyMemoryTranslator(source='en-US', target='pt-BR')
+translator_google = GoogleTranslator(source='auto', target='pt')
 
 # FUNÇÕES
 def carregar_vistos():
@@ -46,13 +46,22 @@ def enviar_telegram(msg):
     except:
         print("Erro Telegram")
 
-def traduzir(texto, tentativas=3):
-    for i in range(tentativas):
+def traduzir(texto, tentativas=2):
+    for i in range(tentativas): # Tenta MyMemory
         try:
-            sleep(0.3)
-            return translator.translate(texto)
+            sleep(0.2)
+            return translator_memory.translate(texto)
         except:
-            sleep(1)
+            sleep(0.5)
+
+    for i in range(tentativas): # Tenta Google
+        try:
+            sleep(0.2)
+            return translator_google.translate(texto)
+        except:
+            sleep(0.5)
+
+    print("⚠️ Falha total tradução:", texto) # Fallback final
     return f"(EN) {texto}"
 
 def agora_brasil():
