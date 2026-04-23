@@ -43,6 +43,7 @@ def enviar_telegram(msg):
     data = {
         "chat_id": CHAT_ID,
         "text": msg,
+        "parse_mode": "HTML",
         "disable_web_page_preview": True
     }
     try:
@@ -82,7 +83,7 @@ def ajustar_data(pubDate, fonte):
         return dt.astimezone(ZoneInfo("America/Sao_Paulo"))
     except Exception:
         return agora_brasil()
-        
+
 # 🧠 RESUMO ESTILO TRADER
 def resumir_trader(titulo):
     t = titulo.lower()
@@ -198,9 +199,9 @@ def run_once():
                     f"🕒 {data_noticia.strftime('%H:%M')}\n"
                     f"💰 IMPACTO WDO: {score_wdo}\n"
                     f"📌 {motivo_txt}\n"
-                    f"📰 {titulo_pt}\n"
+                    f"📰 <b>{titulo_pt}</b>\n"
                     f"📊 {resumo}\n"
-                    f"{n['link']}"
+                    f"<a href='{n["link"]}'</a>"
                 )
                 print(msg + "\n")
                 enviar_telegram(msg)
