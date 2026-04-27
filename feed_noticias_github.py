@@ -1,5 +1,4 @@
 # Feed de notícias guardado no github e rodando 24h no Render
-from os import getenv
 from deep_translator import MyMemoryTranslator, GoogleTranslator
 from requests   import post
 from time       import sleep
@@ -9,14 +8,15 @@ from dateutil   import parser #pip install python-dateutil
 from feedparser import parse
 from flask      import Flask
 from threading  import Thread
+import os
 import json
 
 # CONFIGURAÇÕES
 ALTO_IMP  = "🔥 ALTO IMPACTO"
 MEDIO_IMP = "⚠️ MÉDIO IMPACTO"
 BAIXO_IMP = "💤 BAIXO IMPACTO"
-TELEGRAM_TOKEN = getenv("TELEGRAM_TOKEN")
-CHAT_ID = getenv("CHAT_ID")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 FEEDS = [
     "https://www.cnbc.com/id/100003114/device/rss/rss.html",
     "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^DJI&region=US&lang=en-US"#,
@@ -209,11 +209,15 @@ def run_once():
 
 def loop():
     print("🚀 Bot rodando continuamente...\n")
+    start = time()
     while True:
         try:
             run_once()
         except Exception as e:
             print("Erro no loop:", e)
+         if time() - start > 3600:
+            print("♻️ Reiniciando processo para limpar memória...")
+            os._exit(0)
         sleep(120)  # 2 minutos      
 
 # Flask - Exigência do Render
