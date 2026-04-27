@@ -1,7 +1,7 @@
 # Feed de notícias guardado no github e rodando 24h no Render
 from deep_translator import MyMemoryTranslator, GoogleTranslator
 from requests   import post
-from time       import sleep
+from time       import sleep, time
 from datetime   import datetime, timedelta
 from zoneinfo   import ZoneInfo
 from dateutil   import parser #pip install python-dateutil
@@ -215,7 +215,7 @@ def loop():
             run_once()
         except Exception as e:
             print("Erro no loop:", e)
-         if time() - start > 3600:
+        if time() - start > 3600:
             print("♻️ Reiniciando processo para limpar memória...")
             os._exit(0)
         sleep(120)  # 2 minutos      
